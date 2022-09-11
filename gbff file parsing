@@ -1,0 +1,40 @@
+import os
+import re
+import tqdm
+# os.path.join(file, "hello.txt")
+# tqdm for progress bar
+# use beautiful soup to download files
+# unzip using python loops
+
+for folder_name in ["exception", "output"]:
+    if folder_name not in os.listdir("."):
+        os.mkdir(folder_name)
+
+def write_output(file):
+    with open("fungi/"+file) as f:
+        data = f.read()
+    with open("output/" + file + "_output.txt", "w") as f:
+        all_species = data.split("//")
+        for idx, specie in enumerate(tqdm.tqdm(all_species[:-1])):
+            try:
+                first_translation_character = re.findall('''translation="(.)''', specie)[0]
+                locus_id = re.findall('''LOCUS\W+([A-Z_\d]*)''', specie)[0]
+                comment = re.findall('''COMMENT\W+([^\:]*)''', specie)[0]
+                source = re.findall('''gene\W*[<>\d.]*''', specie)[0].split(" ")[-1]
+                origin = re.findall('''ORIGIN[\W\d]+([a-z]{3})''', specie)[0]
+                if origin == "atg" and first_translation_character != "M" and "<" not in source:
+                    with open("exception/" + file + "_exception.txt", "w") as k:
+                        k.write("idx: %s has origin == atg but first_translation_character is not M" %(idx))
+                f.write("idx: " + str(idx) + "\n")
+                f.write("first_translation_character: " + first_translation_character + "\n")
+                f.write("locus_id: " + locus_id + "\n")
+                f.write("comment: " + comment + "\n")
+                f.write("source: " + source + "\n")
+                f.write("origin: " + origin + "\n")
+                f.write("\n\n")
+            except Exception as e:
+                f.write("failed at idx: %s due to %s" %(idx, e))
+                f.write("\n\n")
+
+for file in os.listdir("fungi"):
+    write_output(file)
