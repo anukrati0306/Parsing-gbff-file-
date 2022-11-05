@@ -13,7 +13,7 @@ for folder_name in ["exception", "output", "errors"]:
     os.mkdir(folder_name)
 
 def write_output(file):
-    with open("fungi/"+file) as f:
+    with open("file_name/"+file) as f:
         data = f.read()
     csv_dict = []
     all_species = data.split("//")
@@ -49,5 +49,5 @@ def write_output(file):
     df = pd.DataFrame.from_dict(csv_dict)
     df.to_csv("output/output.csv", index = False)
 
-for file in os.listdir("fungi"):
+for file in os.listdir("file_name"):
     write_output(file)
